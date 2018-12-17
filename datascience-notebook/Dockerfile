@@ -22,9 +22,10 @@ RUN apt-get update && \
 
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
-ENV JULIA_DEPOT_PATH=/opt/julia
+# ENV JULIA_DEPOT_PATH=/opt/julia
 ENV JULIA_PKGDIR=/opt/julia
-ENV JULIA_VERSION=1.0.0
+ENV JULIA_VERSION=1.0.2
+ENV PYTHON=`which python`
 
 RUN mkdir /opt/julia-${JULIA_VERSION} && \
     cd /tmp && \
@@ -79,10 +80,35 @@ RUN conda install --quiet --yes \
 # taking effect properly on the .local folder in the jovyan home dir.
 RUN julia -e 'import Pkg; Pkg.update()' && \
     (test $TEST_ONLY_BUILD || julia -e 'import Pkg; Pkg.add("HDF5")') && \
+    (test $TEST_ONLY_BUILD || julia -e 'import Pkg; Pkg.add("FITSIO")') && \
+    julia -e 'import Pkg; Pkg.add("Glob")' && \
+    julia -e 'import Pkg; Pkg.add("NBInclude")' && \
+    julia -e 'import Pkg; Pkg.add("Weave")' && \
+    julia -e 'import Pkg; Pkg.add("DataFrames")' && \
+    julia -e 'import Pkg; Pkg.add("CSV")' && \
+    julia -e 'import Pkg; Pkg.add("Distributions")' && \
     julia -e 'import Pkg; Pkg.add("Gadfly")' && \
     julia -e 'import Pkg; Pkg.add("RDatasets")' && \
+    julia -e 'import Pkg; Pkg.add("Conda")' && \
+    julia -e 'import Pkg; Pkg.add("PyCall")' && \
+    julia -e 'import Pkg; Pkg.add("LaTeXStrings")' && \
+    julia -e 'import Pkg; Pkg.add("PyPlot")' && \
+    julia -e 'import Pkg; Pkg.add("Plots")' && \
     julia -e 'import Pkg; Pkg.add("IJulia")' && \
     # Precompile Julia packages \
+    julia -e 'using Glob' && \
+    julia -e 'using NBInclude' && \
+    julia -e 'using Weave' && \
+    julia -e 'using DataFrames' && \
+    julia -e 'using CSV' && \
+    julia -e 'using Distributions' && \
+    julia -e 'using Gadfly' && \
+    julia -e 'using RDatasets' && \
+    julia -e 'using Conda' && \
+    julia -e 'using PyCall' && \
+    julia -e 'using LaTeXStrings' && \
+    julia -e 'using PyPlot' && \
+    julia -e 'using Plots' && \
     julia -e 'using IJulia' && \
     # move kernelspec out of home \
     mv $HOME/.local/share/jupyter/kernels/julia* $CONDA_DIR/share/jupyter/kernels/ && \
